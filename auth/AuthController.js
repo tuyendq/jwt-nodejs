@@ -33,16 +33,10 @@ router.post('/register', function(req, res) {
     });
 });
 
-router.get('/me', function (req, res, next) {
-    var token = req.headers['x-access-token'];
-    // Return 401 unauthorized error code
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.'});
-
-    jwt.verify(token, config.secret, function(err, decoded) {
-        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.'});
+router.get('/me', VerifyToken, function (req, res, next) {
 
         // res.status(200).send(decoded);
-        User.findById(decoded.id, 
+    User.findById(req.userId, 
             { password: 0 }, // projection: hide password field
             function (err, user) {
             if (err) return res.status(500).send("There was problem finding user.");
@@ -52,7 +46,6 @@ router.get('/me', function (req, res, next) {
             // next(user);
         });
     });
-});
 
 // router.use(function (user, req, res, next) {
 //     res.status(200).send(user);
